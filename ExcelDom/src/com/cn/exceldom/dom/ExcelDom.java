@@ -60,28 +60,30 @@ public class ExcelDom {
 			readExcel();
 			String fileName = "";
 			String fileString = "";
+			String version = "V4.3-";
 			for (String key : finalMap.keySet()) {
 				if (key.equals("createtable")) {
-					fileName = "V0.1-01__新建" + finalMap.get("tablename") + "表";
+					fileName = "__新建" + finalMap.get("tablename") + "表";
 					fileString = finalMap.get(key) + "\n"
 							+ finalMap.get("comment") + "\n"
 							+ finalMap.get("index");
-					newFile(rootPath + "/SQL Script/", fileName, fileString);
+					newFile(rootPath + "/SQL Script/", version, fileName,
+							fileString);
 				} else if (key.equals("createsequence")
 						&& finalMap.get(key) != null
 						&& !finalMap.get(key).equals("")) {
-					fileName = "V0.1-02__新建" + finalMap.get("tablename")
-							+ "表id序列";
+					fileName = "__新建" + finalMap.get("tablename") + "表id序列";
 					fileString = finalMap.get("createsequence");
-					newFile(rootPath + "/SQL Script/", fileName, fileString);
+					newFile(rootPath + "/SQL Script/", version, fileName,
+							fileString);
 				} else if (key.equals("trigger") && finalMap.get(key) != null
 						&& !finalMap.get(key).equals("")) {
-					fileName = "V0.1-03__新建" + finalMap.get("tablename")
-							+ "表id触发器";
+					fileName = "__新建" + finalMap.get("tablename") + "表id触发器";
 					fileString = finalMap.get("trigger");
-					newFile(rootPath + "/SQL Script/", fileName, fileString);
-				} else if (key.equals("droptable")) {
-					fileName = "V0.1-00__rollback";
+					newFile(rootPath + "/SQL Script/", version, fileName,
+							fileString);
+				}  if (key.equals("droptable")) {
+					fileName = version+"00"+"__rollback";
 					fileString = finalMap.get("droptable")
 							+ "\n"
 							+ (finalMap.get("dropsequence") == null
@@ -91,7 +93,8 @@ public class ExcelDom {
 							+ (finalMap.get("droptrigger") == null
 									|| finalMap.get("droptrigger").equals("") ? ""
 									: finalMap.get("droptrigger"));
-					newFile(rootPath + "/SQL Script/", fileName, fileString);
+					newFile(rootPath + "/SQL Script/", null, fileName,
+							fileString);
 				}
 			}
 			pane.showMessageDialog(pane, "生成脚本完成!");
@@ -157,11 +160,34 @@ public class ExcelDom {
 	 * @param FileString
 	 * @throws IOException
 	 */
-	public static void newFile(String filePath, String fileName,
-			String fileString) {
+	public static void newFile(String filePath, String version,
+			String fileName, String fileString) {
 		FileOutputStream fos = null;
 		try {
-			fos = new FileOutputStream(new File(filePath + fileName + ".sql"));
+			if (!new File(filePath).exists()) {
+				new File(filePath).mkdirs();
+			}
+			File files[] = new File(filePath).listFiles();
+			if (version!=null) {
+				int maxFile = -1;
+				for (File file : files) {
+					String[] filenames = file.getName().split("\\_\\_");
+					Integer fileNum = Integer
+							.parseInt(filenames[0].split("\\-")[1]);
+					if (fileNum > maxFile) {
+						maxFile = fileNum;
+					}
+				}
+				String step = maxFile + 1 > 9 ? String.valueOf(maxFile + 1) : "0"
+						+ (maxFile+1);
+
+				fos = new FileOutputStream(new File(filePath + version + step
+						+ fileName + ".sql"));
+			}else {
+				fos = new FileOutputStream(new File(filePath 
+						+ fileName + ".sql"));
+			}
+			
 			fos.write(fileString.getBytes());
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

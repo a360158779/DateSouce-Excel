@@ -60,7 +60,7 @@ public class SpecialTable {
 			dropSeq = dropSequence(sequenceName);
 		}
 		if (model.equals("是")) {
-			isCreatedDate = "created_date date,\ncreated_user varchar2(200),\nupdated_date date,\nupdated_user varchar2(200)";
+			isCreatedDate = "created_date date default sysdate,\ncreated_user varchar2(200) default 'SYS',\nupdated_date date,\nupdated_user varchar2(200)";
 			id = "id number(" + lenth.split("\\.")[0] + ") primary key,\n";
 		}
 		if (trgModel.equals("是") && model.equals("是") && seq.equals("是")) {
@@ -75,6 +75,9 @@ public class SpecialTable {
 		}
 		for (String key : tablemap.keySet()) {
 			String[] fileds = key.split("\\|");
+			if (fileds.length<1) {
+				break;
+			}
 			// 字段名
 			String fieldName = fileds[0];
 			// 字段类型
